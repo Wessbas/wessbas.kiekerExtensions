@@ -23,6 +23,7 @@ import java.nio.ByteBuffer;
 import kieker.common.record.AbstractMonitoringRecord;
 import kieker.common.record.IMonitoringRecord;
 import kieker.common.util.registry.IRegistry;
+import kieker.common.util.Version;
 
 
 /**
@@ -36,35 +37,48 @@ public class ServletEntryRecord extends AbstractMonitoringRecord implements IMon
 			 + TYPE_SIZE_STRING // ServletEntryRecord.uri
 			 + TYPE_SIZE_INT // ServletEntryRecord.port
 			 + TYPE_SIZE_STRING // ServletEntryRecord.host
+			 + TYPE_SIZE_STRING // ServletEntryRecord.protocol
 			 + TYPE_SIZE_STRING // ServletEntryRecord.method
 			 + TYPE_SIZE_STRING // ServletEntryRecord.queryString
 			 + TYPE_SIZE_STRING // ServletEntryRecord.encoding
 	;
-	private static final long serialVersionUID = -1427498621992988740L;
+	private static final long serialVersionUID = 2574704311317656583L;
 	
 	public static final Class<?>[] TYPES = {
 		long.class, // ServletEntryRecord.traceId
 		String.class, // ServletEntryRecord.uri
 		int.class, // ServletEntryRecord.port
 		String.class, // ServletEntryRecord.host
+		String.class, // ServletEntryRecord.protocol
 		String.class, // ServletEntryRecord.method
 		String.class, // ServletEntryRecord.queryString
 		String.class, // ServletEntryRecord.encoding
 	};
 	
 	/* user-defined constants */
+	public static final int NO_TRACE_ID = -1;
+	public static final String NO_URI = "<no-uri>";
+	public static final int NO_PORT = -1;
+	public static final String NO_HOST = "<no-host>";
+	public static final String NO_PROTOCOL = "<no-protocol>";
+	public static final String NO_METHOD = "<no-method>";
+	public static final String NO_QUERY_STRING = "<no-query-string>";
+	public static final String NO_ENCODING = "<no-encoding>";
 	/* default constants */
-	public static final long TRACE_ID = -1 ;
-	public static final String URI = "";
-	public static final String HOST = "";
-	public static final String METHOD = "";
-	public static final String QUERY_STRING = "";
-	public static final String ENCODING = "";
+	public static final long TRACE_ID = NO_TRACE_ID;
+	public static final String URI = NO_URI;
+	public static final int PORT = NO_PORT;
+	public static final String HOST = NO_HOST;
+	public static final String PROTOCOL = NO_PROTOCOL;
+	public static final String METHOD = NO_METHOD;
+	public static final String QUERY_STRING = NO_QUERY_STRING;
+	public static final String ENCODING = NO_ENCODING;
 	/* property declarations */
 	private final long traceId;
 	private final String uri;
 	private final int port;
 	private final String host;
+	private final String protocol;
 	private final String method;
 	private final String queryString;
 	private final String encoding;
@@ -80,6 +94,8 @@ public class ServletEntryRecord extends AbstractMonitoringRecord implements IMon
 	 *            port
 	 * @param host
 	 *            host
+	 * @param protocol
+	 *            protocol
 	 * @param method
 	 *            method
 	 * @param queryString
@@ -87,14 +103,15 @@ public class ServletEntryRecord extends AbstractMonitoringRecord implements IMon
 	 * @param encoding
 	 *            encoding
 	 */
-	public ServletEntryRecord(final long traceId, final String uri, final int port, final String host, final String method, final String queryString, final String encoding) {
+	public ServletEntryRecord(final long traceId, final String uri, final int port, final String host, final String protocol, final String method, final String queryString, final String encoding) {
 		this.traceId = traceId;
-		this.uri = uri == null?"":uri;
+		this.uri = uri == null?NO_URI:uri;
 		this.port = port;
-		this.host = host == null?"":host;
-		this.method = method == null?"":method;
-		this.queryString = queryString == null?"":queryString;
-		this.encoding = encoding == null?"":encoding;
+		this.host = host == null?NO_HOST:host;
+		this.protocol = protocol == null?NO_PROTOCOL:protocol;
+		this.method = method == null?NO_METHOD:method;
+		this.queryString = queryString == null?NO_QUERY_STRING:queryString;
+		this.encoding = encoding == null?NO_ENCODING:encoding;
 	}
 
 	/**
@@ -110,9 +127,10 @@ public class ServletEntryRecord extends AbstractMonitoringRecord implements IMon
 		this.uri = (String) values[1];
 		this.port = (Integer) values[2];
 		this.host = (String) values[3];
-		this.method = (String) values[4];
-		this.queryString = (String) values[5];
-		this.encoding = (String) values[6];
+		this.protocol = (String) values[4];
+		this.method = (String) values[5];
+		this.queryString = (String) values[6];
+		this.encoding = (String) values[7];
 	}
 	
 	/**
@@ -129,9 +147,10 @@ public class ServletEntryRecord extends AbstractMonitoringRecord implements IMon
 		this.uri = (String) values[1];
 		this.port = (Integer) values[2];
 		this.host = (String) values[3];
-		this.method = (String) values[4];
-		this.queryString = (String) values[5];
-		this.encoding = (String) values[6];
+		this.protocol = (String) values[4];
+		this.method = (String) values[5];
+		this.queryString = (String) values[6];
+		this.encoding = (String) values[7];
 	}
 
 	/**
@@ -148,6 +167,7 @@ public class ServletEntryRecord extends AbstractMonitoringRecord implements IMon
 		this.uri = stringRegistry.get(buffer.getInt());
 		this.port = buffer.getInt();
 		this.host = stringRegistry.get(buffer.getInt());
+		this.protocol = stringRegistry.get(buffer.getInt());
 		this.method = stringRegistry.get(buffer.getInt());
 		this.queryString = stringRegistry.get(buffer.getInt());
 		this.encoding = stringRegistry.get(buffer.getInt());
@@ -163,6 +183,7 @@ public class ServletEntryRecord extends AbstractMonitoringRecord implements IMon
 			this.getUri(),
 			this.getPort(),
 			this.getHost(),
+			this.getProtocol(),
 			this.getMethod(),
 			this.getQueryString(),
 			this.getEncoding()
@@ -178,6 +199,7 @@ public class ServletEntryRecord extends AbstractMonitoringRecord implements IMon
 		buffer.putInt(stringRegistry.get(this.getUri()));
 		buffer.putInt(this.getPort());
 		buffer.putInt(stringRegistry.get(this.getHost()));
+		buffer.putInt(stringRegistry.get(this.getProtocol()));
 		buffer.putInt(stringRegistry.get(this.getMethod()));
 		buffer.putInt(stringRegistry.get(this.getQueryString()));
 		buffer.putInt(stringRegistry.get(this.getEncoding()));
@@ -234,6 +256,10 @@ public class ServletEntryRecord extends AbstractMonitoringRecord implements IMon
 	
 	public final String getHost() {
 		return this.host;
+	}
+	
+	public final String getProtocol() {
+		return this.protocol;
 	}
 	
 	public final String getMethod() {

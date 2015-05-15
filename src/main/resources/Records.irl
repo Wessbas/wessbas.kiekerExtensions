@@ -2,13 +2,21 @@ package io.github.wessbas.kiekerExtensions.record
 
 @author 'Andre van Hoorn' @since '1.12'
 entity ServletEntryRecord {
-	const string NO_TRACE_ID = "<no-trace-id>"
+	const int NO_TRACE_ID = -1
+	const string NO_URI = "<no-uri>"
+    const int NO_PORT = -1
+    const string NO_HOST = "<no-host>"
+    const string NO_PROTOCOL = "<no-protocol>"
+    const string NO_METHOD = "<no-method>"
+    const string NO_QUERY_STRING = "<no-query-string>"
+    const string NO_ENCODING = "<no-encoding>"
 
     long traceId = NO_TRACE_ID
-	string uri
-	int port
-	string host
-	string method
-	string queryString
-	string encoding
+	string uri = NO_URI
+	int port = NO_PORT
+	string host = NO_HOST
+	string protocol = NO_PROTOCOL
+	string method = NO_METHOD
+	string queryString = NO_QUERY_STRING
+	string encoding = NO_ENCODING
 }

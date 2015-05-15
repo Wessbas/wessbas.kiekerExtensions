@@ -175,11 +175,12 @@ public class SessionAndTraceRegistrationFilterSPECjEnterprise implements Filter,
 				String uri = ((HttpServletRequest)request).getRequestURI();
 				int port = request.getLocalPort();
 				String host = request.getLocalAddr();
+				String protocol = request.getProtocol();
 				String method = ((HttpServletRequest)request).getMethod();
 				String queryString = ((HttpServletRequest)request).getQueryString();
 				String encoding = request.getCharacterEncoding();
 				MONITORING_CTRL.newMonitoringRecord(
-						new ServletEntryRecord(traceId, uri, port, host, method, queryString, encoding));
+						new ServletEntryRecord(traceId, uri, port, host, protocol, method, queryString, encoding));
 				
 				final long tout = TIMESOURCE.getTime();
 				// if sessionId == null, try again to fetch it (should exist after being within the application logic)
