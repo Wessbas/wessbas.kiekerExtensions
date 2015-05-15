@@ -1,0 +1,14 @@
+package io.github.wessbas.kiekerExtensions.record
+
+@author 'Andre van Hoorn' @since '1.12'
+entity ServletEntryRecord {
+	const string NO_TRACE_ID = "<no-trace-id>"
+
+    long traceId = NO_TRACE_ID
+	string uri
+	int port
+	string host
+	string method
+	string queryString
+	string encoding
+}
