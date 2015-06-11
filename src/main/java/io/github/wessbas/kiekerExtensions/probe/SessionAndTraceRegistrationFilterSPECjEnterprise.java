@@ -19,6 +19,7 @@ package io.github.wessbas.kiekerExtensions.probe;
 import io.github.wessbas.kiekerExtensions.record.ServletEntryRecord;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -38,7 +39,10 @@ import kieker.monitoring.core.controller.IMonitoringController;
 import kieker.monitoring.core.controller.MonitoringController;
 import kieker.monitoring.core.registry.ControlFlowRegistry;
 import kieker.monitoring.core.registry.SessionRegistry;
+import kieker.monitoring.core.sampler.ISampler;
 import kieker.monitoring.probe.IMonitoringProbe;
+import kieker.monitoring.sampler.mxbean.GCSampler;
+import kieker.monitoring.sampler.mxbean.MemorySampler;
 import kieker.monitoring.timer.ITimeSource;
 
 /**
@@ -128,6 +132,11 @@ public class SessionAndTraceRegistrationFilterSPECjEnterprise implements Filter,
 					+ CONFIG_PROPERTY_NAME_LOG_FILTER_EXECUTION
 					+ "' not set. Using the value: " + this.logFilterExecution);
 		}
+
+		final ISampler[] samplers = new ISampler[] { new GCSampler(), new MemorySampler() };
+		for (final ISampler sampler : samplers) {
+			MONITORING_CTRL.schedulePeriodicSampler(sampler, 0, 10, TimeUnit.SECONDS);
+		}
 	}
 
 	/**
@@ -172,16 +181,16 @@ public class SessionAndTraceRegistrationFilterSPECjEnterprise implements Filter,
 		} finally {
 			SESSION_REGISTRY.unsetThreadLocalSessionId();
 			if (this.logFilterExecution) {
-				String uri = ((HttpServletRequest)request).getRequestURI();
+				String uri = ((HttpServletRequest) request).getRequestURI();
 				int port = request.getLocalPort();
 				String host = request.getLocalAddr();
 				String protocol = request.getProtocol();
-				String method = ((HttpServletRequest)request).getMethod();
-				String queryString = ((HttpServletRequest)request).getQueryString();
+				String method = ((HttpServletRequest) request).getMethod();
+				String queryString = ((HttpServletRequest) request).getQueryString();
 				String encoding = request.getCharacterEncoding();
 				MONITORING_CTRL.newMonitoringRecord(
 						new ServletEntryRecord(traceId, uri, port, host, protocol, method, queryString, encoding));
-				
+
 				final long tout = TIMESOURCE.getTime();
 				// if sessionId == null, try again to fetch it (should exist after being within the application logic)
 				if (sessionId == OperationExecutionRecord.NO_SESSION_ID) { // yes, == and not equals
