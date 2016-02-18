@@ -258,15 +258,21 @@ public class SessionAndTraceRegistrationFilterSPECjEnterprise implements Filter,
 
 	private static String extractFromQueryString(final String queryString) {
 		String useCase = "NOACTION";
-
+		boolean vehicle = false;		
 		if (queryString != null) {
 			final String[] keyValues = queryString.split("&");
 			for (final String keyValue : keyValues) {
 				final String[] paramSplit = keyValue.split("=");
 				if ("action".equals(paramSplit[0])) {
 					useCase = paramSplit[1];
+				} 
+				if ("vehicles".equals(paramSplit[0])) {
+					vehicle = true;
 				}
 			}
+			if ("View_Items".equals(useCase) && vehicle ) {
+				useCase = useCase + "_quantity";
+			}			
 		}
 		return useCase;
 	}
